@@ -1,0 +1,126 @@
+"use client";
+import {
+  FileQuestion,
+  Home,
+  Search,
+  Settings,
+  StickyNote,
+  WandSparkles,
+} from "lucide-react";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarTrigger,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import Image from "next/image";
+import Link from "next/link";
+
+// Menu items.
+const items = [
+  {
+    title: "Worksheet",
+    url: "/generate/worksheet",
+    icon: StickyNote,
+  },
+  {
+    title: "Questions on a Text",
+    url: "/generate/questions-on-a-text",
+    icon: FileQuestion,
+  },
+  {
+    title: "Answer Key",
+    url: "/generate/answer-key",
+    icon: Search,
+  },
+  {
+    title: "Summary",
+    url: "/generate/summary",
+    icon: WandSparkles,
+  },
+];
+
+export function AppSidebar() {
+  const { state } = useSidebar();
+
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        {/* <Logo /> */}
+        <div className="flex flex-row items-center gap-2 p-2">
+          <Image
+            src="/logo-black.svg"
+            alt="SmartSheets AI"
+            width={24}
+            height={24}
+          />
+          {state === "expanded" && (
+            <div className="flex flex-col">
+              <h1 className="font-semibold text-md">
+                {process.env.NEXT_PUBLIC_APP_NAME || "SmartSheets AI"}
+              </h1>
+              <span className="text-xs text-muted-foreground">
+                {process.env.NEXT_PUBLIC_APP_TAGLINE || "Made for Teachers"}
+              </span>
+            </div>
+          )}
+        </div>
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href={"/"}>
+                    <Home />
+                    <span>{"Home"}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>Generate</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <a href={"#"}>
+                <Settings />
+                <span>{"Settings"}</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <SidebarTrigger />
+      </SidebarFooter>
+    </Sidebar>
+  );
+}

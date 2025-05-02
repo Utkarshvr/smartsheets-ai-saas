@@ -134,7 +134,7 @@ export const WorksheetForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-2">
           <div className="flex flex-row gap-2">
             {/* Class Select */}
             <div>
