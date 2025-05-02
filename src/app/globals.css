@@ -125,4 +125,29 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  .worksheet-container {
+    @apply text-neutral-800 text-base m-auto;
+    h1 {
+      @apply text-3xl font-bold;
+    }
+    h2 {
+      @apply text-2xl font-bold;
+    }
+    h3 {
+      @apply text-xl font-bold;
+    }
+    p {
+      @apply my-1;
+    }
+    br {
+      @apply block h-1;
+    }
+    ul {
+      @apply list-disc pl-7;
+    }
+    ol {
+      @apply list-decimal pl-7;
+    }
+  }
 }

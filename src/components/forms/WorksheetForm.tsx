@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -22,12 +22,15 @@ import { MultiSelect } from "../multi-select.tsx";
 import subjects from "@/config/subjects";
 import SelectFormat from "../inputs/SelectFormat";
 import { Textarea } from "../ui/textarea";
-import { DifficultyType, FormatBlock } from "@/types/worksheet-types";
-import { calculateTotalMarks, generateOpenAIPrompt } from "@/utils/helpers";
-import { useRouter } from "next/navigation";
+import { DifficultyType } from "@/types/worksheet-types";
+import { calculateTotalMarks, generateWorksheetPrompt } from "@/utils/helpers";
+
+import GeneratedWoksheet from "../core/GeneratedWoksheet";
+import { Loader2 } from "lucide-react";
 
 export const WorksheetForm = () => {
-  const router = useRouter();
+  const [isResponseGenerating, setIsResponseGenerating] = useState(false);
+
   const {
     worksheetFormData,
     setWorksheetFormData,
@@ -35,6 +38,9 @@ export const WorksheetForm = () => {
     availableChapters,
 
     formatBlocks,
+
+    worksheetResponse,
+    setWorksheetResponse,
   } = useWorksheetFormStore();
 
   // Fetch syllabus on class/subject change
@@ -57,7 +63,7 @@ export const WorksheetForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Final Form Data:", worksheetFormData);
+    // console.log("Final Form Data:", worksheetFormData);
     // You can add backend call here
   };
 
@@ -81,7 +87,8 @@ export const WorksheetForm = () => {
     !worksheetFormData.difficulty;
 
   const handleGenerateWorksheet = async () => {
-    const prompt = generateOpenAIPrompt({
+    setIsResponseGenerating(true);
+    const prompt = generateWorksheetPrompt({
       ...worksheetFormData,
       format: formatBlocks,
     });
@@ -89,41 +96,56 @@ export const WorksheetForm = () => {
     console.log(prompt); // Optional: for debugging
 
     try {
-      const response = await fetch(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`, // or securely injected key
-          },
-          body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [
-              {
-                role: "system",
-                content: "You are a helpful and experienced teacher.",
-              },
-              { role: "user", content: prompt },
-            ],
-            temperature: 0.7,
-          }),
-        }
-      );
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt,
+        }),
+      });
 
       const data = await response.json();
-      const output = data.choices?.[0]?.message?.content;
+
+      console.log("GEMINI_RESPONSE: ", { GEMINI_RESPONSE: data });
+
+      const output = data.output;
 
       if (output) {
         console.log("Generated Worksheet:\n", output);
+
+        setWorksheetResponse(output);
+
         // Optionally: setOutput(output) or display it in the UI
       } else {
         console.error("No content received from OpenAI");
       }
     } catch (err) {
       console.error("Error generating worksheet:", err);
+    } finally {
+      setIsResponseGenerating(false);
     }
   };
+
+  if (worksheetResponse) {
+    return (
+      <Card className="w-full max-w-5xl mx-auto">
+        <CardHeader>
+          <CardTitle>Worksheet</CardTitle>
+          <CardDescription>
+            Here is the worksheet generated for you.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* <TiptapEditor content={worksheetResponse} /> */}
+          <div className="worksheet-container">
+            <GeneratedWoksheet generatedWorksheet={worksheetResponse} />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -279,12 +301,16 @@ export const WorksheetForm = () => {
           </div>
 
           <Button
-            disabled={isGenerateButtonDisabled}
+            disabled={isGenerateButtonDisabled || isResponseGenerating}
             type="submit"
             className="w-full mt-4"
             onClick={handleGenerateWorksheet}
           >
-            Generate
+            {isResponseGenerating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              "Generate"
+            )}
           </Button>
         </form>
       </CardContent>

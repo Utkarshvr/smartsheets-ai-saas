@@ -46,6 +46,9 @@ export interface WorksheetFormStore {
   worksheetFormData: WorksheetFormData;
   setWorksheetFormData: (worksheetFormData: WorksheetFormData) => void;
 
+  worksheetResponse: string;
+  setWorksheetResponse: (worksheetResponse: string) => void;
+
   syllabus: SyllabusEntry[];
   setSyllabus: (syllabus: SyllabusEntry[]) => void;
 

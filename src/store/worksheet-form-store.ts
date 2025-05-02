@@ -22,6 +22,10 @@ export const useWorksheetFormStore = create<WorksheetFormStore>((set, get) => ({
   setWorksheetFormData: (worksheetFormData: WorksheetFormData) =>
     set({ worksheetFormData }),
 
+  worksheetResponse: "",
+  setWorksheetResponse: (worksheetResponse: string) =>
+    set({ worksheetResponse }),
+
   syllabus: [],
   setSyllabus: (syllabus: SyllabusEntry[]) => set({ syllabus }),
 
