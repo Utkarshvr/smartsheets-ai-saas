@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 import Link from "next/link";
+import { UserButton, UserProfile } from "@clerk/nextjs";
 
 // Menu items.
 const items = [
@@ -52,7 +53,6 @@ const items = [
 export function AppSidebar() {
   const sidebarState = useSidebar();
   const isExpanded = sidebarState.state === "expanded";
-  console.log({ sidebarState });
 
   return (
     <>
@@ -112,6 +112,21 @@ export function AppSidebar() {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
+          <UserButton
+            showName
+            appearance={{
+              elements: {
+                userButtonAvatarBox: {
+                  width: 36,
+                  height: 36,
+                },
+                userButtonBox: {
+                  flexDirection: "row-reverse",
+                },
+              },
+            }}
+          />
+
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
