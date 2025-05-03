@@ -27,8 +27,13 @@ import { calculateTotalMarks, generateWorksheetPrompt } from "@/utils/helpers";
 
 import GeneratedWoksheet from "../core/GeneratedWoksheet";
 import { Loader2 } from "lucide-react";
+import { useSupabase } from "../providers/supabase-provider";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export const WorksheetForm = () => {
+  const router = useRouter();
+
   const [isResponseGenerating, setIsResponseGenerating] = useState(false);
 
   const {
@@ -128,17 +133,56 @@ export const WorksheetForm = () => {
     }
   };
 
+  const { supabase } = useSupabase();
+  const { user } = useUser();
+
+  const title = `Class ${worksheetFormData.class} ${worksheetFormData.subject} | ${worksheetFormData.chapter} Worksheet`;
+
+  const saveWorksheetResponse = async () => {
+    console.log(
+      "Saving worksheet response",
+      supabase,
+      user,
+      !!worksheetResponse
+    );
+
+    if (!supabase || !user || !worksheetResponse) return;
+
+    const { data, error } = await supabase
+      .from("worksheets")
+      .insert({
+        owner_id: user.id,
+        title: title,
+        worksheet: worksheetResponse,
+      })
+      .select() // This will return the inserted row(s)
+      .maybeSingle();
+
+    console.log({ savedWorksheet: data });
+    if (error) {
+      console.error("Error saving worksheet response:", error);
+    } else {
+      console.log("Worksheet response saved successfully");
+      router.push(`/worksheets/${data.id}`);
+    }
+  };
+
+  useEffect(() => {
+    // console.log("Auto saving worksheet response");
+
+    saveWorksheetResponse();
+  }, [worksheetResponse, supabase, user]);
+
   if (worksheetResponse) {
     return (
       <Card className="w-full max-w-5xl mx-auto">
         <CardHeader>
-          <CardTitle>Worksheet</CardTitle>
+          <CardTitle>{title}</CardTitle>
           <CardDescription>
             Here is the worksheet generated for you.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {/* <TiptapEditor content={worksheetResponse} /> */}
           <div className="worksheet-container">
             <GeneratedWoksheet generatedWorksheet={worksheetResponse} />
           </div>

@@ -24,11 +24,13 @@ export default function SupabaseProvider({ children }: Props) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
+    console.log("inside supabase provider", session, supabase, isLoaded);
     if (!session) return;
 
     const client = createClient(supabaseConfig.url!, supabaseConfig.key!, {
       accessToken: () => session?.getToken(),
     });
+    console.log("client", client);
 
     setSupabase(client);
     setIsLoaded(true);

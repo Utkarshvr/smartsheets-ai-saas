@@ -1,5 +1,9 @@
-import { redirect } from "next/navigation";
+import WorksheetsList from "@/components/core/WorksheetsList";
 
 export default function page() {
-  return redirect("/generate/worksheet");
+  return (
+    <main className="p-4">
+      <WorksheetsList />
+    </main>
+  );
 }
