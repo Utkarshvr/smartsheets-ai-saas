@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSupabase } from "../providers/supabase-provider";
 import { Card, CardHeader, CardTitle, CardDescription } from "../ui/card";
-import { useUser } from "@clerk/nextjs";
+
 import dayjs from "dayjs";
-import "dayjs/plugin/relativeTime";
+import relativeTime from "dayjs/plugin/relativeTime";
+import supabase from "@/utils/supabase/client";
+import Link from "next/link";
+dayjs.extend(relativeTime);
 
 export default function WorksheetsList() {
-  const { supabase } = useSupabase();
-  const { user } = useUser();
   const [worksheets, setWorksheets] = useState<
     {
       id: string;
@@ -19,35 +19,43 @@ export default function WorksheetsList() {
     }[]
   >([]);
 
-  useEffect(() => {
-    const fetchWorksheets = async () => {
-      if (!supabase || !user) return;
-      const { data, error } = await supabase
-        .from("worksheets")
-        .select("*")
-        .eq("owner_id", user.id);
+  const getAllWorksheets = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+      console.error("User not found");
+      return;
+    }
 
-      if (error) {
-        console.error("Error fetching worksheets:", error);
-      } else {
-        setWorksheets(data);
-      }
-    };
-    fetchWorksheets();
-  }, [user?.id]);
+    const { data: worksheets, error } = await supabase
+      .from("worksheets")
+      .select("*")
+      .eq("owner_id", data.user.id);
+
+    if (error) {
+      console.error("Error fetching worksheets:", error);
+    } else {
+      setWorksheets(worksheets);
+    }
+  };
+
+  useEffect(() => {
+    getAllWorksheets();
+  }, []);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 w-full">
       <h1 className="text-2xl font-semibold">Your Worksheets</h1>
       {worksheets.map((worksheet) => (
-        <Card key={worksheet.id}>
-          <CardHeader>
-            <CardTitle>{worksheet.title}</CardTitle>
-            <CardDescription>
-              {dayjs(worksheet.created_at).fromNow()}
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <Link href={`/worksheets/${worksheet.id}`} key={worksheet.id}>
+          <Card>
+            <CardHeader>
+              <CardTitle>{worksheet.title}</CardTitle>
+              <CardDescription>
+                {dayjs(worksheet.created_at).fromNow()}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
       ))}
     </div>
   );

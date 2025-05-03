@@ -27,9 +27,8 @@ import { calculateTotalMarks, generateWorksheetPrompt } from "@/utils/helpers";
 
 import GeneratedWoksheet from "../core/GeneratedWoksheet";
 import { Loader2 } from "lucide-react";
-import { useSupabase } from "../providers/supabase-provider";
-import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import supabase from "@/utils/supabase/client";
 
 export const WorksheetForm = () => {
   const router = useRouter();
@@ -46,6 +45,8 @@ export const WorksheetForm = () => {
 
     worksheetResponse,
     setWorksheetResponse,
+
+    resetAllStates,
   } = useWorksheetFormStore();
 
   // Fetch syllabus on class/subject change
@@ -126,6 +127,7 @@ export const WorksheetForm = () => {
       } else {
         console.error("No content received from OpenAI");
       }
+      // saveWorksheetResponse();
     } catch (err) {
       console.error("Error generating worksheet:", err);
     } finally {
@@ -133,25 +135,15 @@ export const WorksheetForm = () => {
     }
   };
 
-  const { supabase } = useSupabase();
-  const { user } = useUser();
-
   const title = `Class ${worksheetFormData.class} ${worksheetFormData.subject} | ${worksheetFormData.chapter} Worksheet`;
-
   const saveWorksheetResponse = async () => {
-    console.log(
-      "Saving worksheet response",
-      supabase,
-      user,
-      !!worksheetResponse
-    );
+    console.log("Saving worksheet response");
 
-    if (!supabase || !user || !worksheetResponse) return;
+    if (!worksheetResponse) return;
 
     const { data, error } = await supabase
       .from("worksheets")
       .insert({
-        owner_id: user.id,
         title: title,
         worksheet: worksheetResponse,
       })
@@ -163,15 +155,15 @@ export const WorksheetForm = () => {
       console.error("Error saving worksheet response:", error);
     } else {
       console.log("Worksheet response saved successfully");
+      resetAllStates();
       router.push(`/worksheets/${data.id}`);
     }
   };
 
   useEffect(() => {
     // console.log("Auto saving worksheet response");
-
     saveWorksheetResponse();
-  }, [worksheetResponse, supabase, user]);
+  }, [worksheetResponse]);
 
   if (worksheetResponse) {
     return (

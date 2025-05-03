@@ -90,4 +90,25 @@ export const useWorksheetFormStore = create<WorksheetFormStore>((set, get) => ({
     const updated = get().formatBlocks.filter((block) => block.id !== id);
     set({ formatBlocks: updated });
   },
+
+  resetAllStates: () => {
+    set({
+      worksheetFormData: {
+        class: 12,
+        subject: "Mathematics",
+        board: "CBSE",
+        stream: "Science",
+        chapter: "",
+        subtopics: [],
+        format: [],
+        additionalInfo: "",
+        difficulty: "medium",
+      },
+      worksheetResponse: "",
+      syllabus: [],
+      availableChapters: [],
+      formatBlocks: [],
+      idCounter: 0,
+    });
+  },
 }));

@@ -70,4 +70,6 @@ export interface WorksheetFormStore {
     value: string
   ) => void;
   removeFormatBlock: (id: number) => void;
+
+  resetAllStates: () => void;
 }

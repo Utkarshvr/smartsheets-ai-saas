@@ -1,5 +1,6 @@
 "use client";
 import {
+  BookOpen,
   FileQuestion,
   Home,
   Search,
@@ -24,7 +25,7 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 import Link from "next/link";
-import { UserButton, UserProfile } from "@clerk/nextjs";
+// import { UserButton, UserProfile } from "@clerk/nextjs";
 
 // Menu items.
 const items = [
@@ -110,9 +111,26 @@ export function AppSidebar() {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+
+          <SidebarGroup>
+            <SidebarGroupLabel>Your Study Materials</SidebarGroupLabel>
+
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href={"/worksheets"}>
+                      <BookOpen />
+                      <span>{"Worksheets"}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <UserButton
+          {/* <UserButton
             showName
             appearance={{
               elements: {
@@ -125,7 +143,7 @@ export function AppSidebar() {
                 },
               },
             }}
-          />
+          /> */}
 
           <SidebarMenu>
             <SidebarMenuItem>
